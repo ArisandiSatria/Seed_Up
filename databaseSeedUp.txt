@@ -1,0 +1,426 @@
+-- phpMyAdmin SQL Dump
+-- version 5.1.3
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Jun 17, 2022 at 02:34 PM
+-- Server version: 10.4.24-MariaDB
+-- PHP Version: 8.1.4
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+--
+-- Database: `seed_up`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `akun_customer`
+--
+
+CREATE TABLE `akun_customer` (
+  `id_customer` int(10) NOT NULL,
+  `nama_customer` varchar(30) NOT NULL,
+  `username` varchar(30) NOT NULL,
+  `password` varchar(30) NOT NULL,
+  `alamat` varchar(50) NOT NULL,
+  `e_mail` varchar(50) NOT NULL,
+  `no_hp` varchar(30) NOT NULL,
+  `tanggal_lahir` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `akun_customer`
+--
+
+INSERT INTO `akun_customer` (`id_customer`, `nama_customer`, `username`, `password`, `alamat`, `e_mail`, `no_hp`, `tanggal_lahir`) VALUES
+(1, 'admin145', 'Andi Firmansyah', '123', 'Jalan sana sini', 'admin@email.com', '082222222222', '12-11-2001'),
+(2, 'Dummy', 'dummy', '123', 'Dummy Address', 'iniemail@gmail.com', '123456789', '12-11-2001');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `akun_pemilik`
+--
+
+CREATE TABLE `akun_pemilik` (
+  `id_pemilik` int(10) NOT NULL,
+  `nama_pemilik` varchar(30) NOT NULL,
+  `username` varchar(30) NOT NULL,
+  `password` varchar(30) NOT NULL,
+  `alamat` varchar(50) NOT NULL,
+  `e_mail` varchar(50) NOT NULL,
+  `no_hp` varchar(30) NOT NULL,
+  `tanggal_lahir` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `akun_pemilik`
+--
+
+INSERT INTO `akun_pemilik` (`id_pemilik`, `nama_pemilik`, `username`, `password`, `alamat`, `e_mail`, `no_hp`, `tanggal_lahir`) VALUES
+(1, 'H. Fauzi', 'Fauzi123', '123', 'RT 03/RW 04 Desa Juglangan, Panji, Situbondo', 'fauzigantengberwibawa@email.com', '082352088435', '15 Februari 1962');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `data_pencatatan`
+--
+
+CREATE TABLE `data_pencatatan` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `tanggal` varchar(30) NOT NULL,
+  `judul` varchar(50) NOT NULL,
+  `kategori` varchar(50) NOT NULL,
+  `isi` varchar(500) NOT NULL,
+  `pemasukan` int(20) DEFAULT NULL,
+  `pengeluaran` int(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `data_pencatatan`
+--
+
+INSERT INTO `data_pencatatan` (`id`, `tanggal`, `judul`, `kategori`, `isi`, `pemasukan`, `pengeluaran`) VALUES
+(2, '28-04-2022', 'ini judul', 'ini kategori', 'gaada deskripsi', 10000, 6000),
+(7, '07-05-2022', 'judul catatan', 'advcsndscva', 'nawoisvnna', 4000, 1000);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `data_produk`
+--
+
+CREATE TABLE `data_produk` (
+  `id_produk` int(10) NOT NULL,
+  `nama_produk` varchar(50) NOT NULL,
+  `keterangan` text NOT NULL,
+  `foto` blob NOT NULL,
+  `harga_produk` int(15) NOT NULL,
+  `stok_barang` int(15) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `data_produk`
+--
+
+INSERT INTO `data_produk` (`id_produk`, `nama_produk`, `keterangan`, `foto`, `harga_produk`, `stok_barang`) VALUES
+(44, 'Bibit H-3 hari', 'Bibit H-3 hari', 0x70726f64756b312e6a706567, 20000, 12);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `detail_pembayaran`
+--
+
+CREATE TABLE `detail_pembayaran` (
+  `id_pembayaran` int(11) NOT NULL,
+  `id_pesanan` int(11) NOT NULL,
+  `foto_bukti` blob DEFAULT NULL,
+  `tanggal` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `detail_pembayaran`
+--
+
+INSERT INTO `detail_pembayaran` (`id_pembayaran`, `id_pesanan`, `foto_bukti`, `tanggal`) VALUES
+(1, 1, 0x363238643636373034613637612e6a7067, '17-06-2022'),
+(2, 2, 0x70726f64756b312e6a706567, '17-06-2022');
+
+--
+-- Triggers `detail_pembayaran`
+--
+DELIMITER $$
+CREATE TRIGGER `triggerKePesananCustomer` AFTER INSERT ON `detail_pembayaran` FOR EACH ROW BEGIN
+INSERT INTO pesanan_customer
+(id_pembayaran, id_pesanan)
+VALUES (new.id_pembayaran, new.id_pesanan);
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `triggerKeTransaksiPesanan` AFTER INSERT ON `detail_pembayaran` FOR EACH ROW BEGIN
+INSERT INTO transaksi_pesanan (id_pembayaran, id_pesanan)
+VALUES (new.id_pembayaran, new.id_pesanan);
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `detail_pesanan`
+--
+
+CREATE TABLE `detail_pesanan` (
+  `id_pesanan` int(11) NOT NULL,
+  `id_produk` int(11) NOT NULL,
+  `id_metode` int(11) NOT NULL,
+  `kuantitas` int(11) NOT NULL,
+  `id_customer` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `detail_pesanan`
+--
+
+INSERT INTO `detail_pesanan` (`id_pesanan`, `id_produk`, `id_metode`, `kuantitas`, `id_customer`) VALUES
+(1, 44, 1, 5, 1),
+(2, 44, 6, 15, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `metode_pembayaran`
+--
+
+CREATE TABLE `metode_pembayaran` (
+  `id_metode` int(11) NOT NULL,
+  `metode` varchar(100) DEFAULT NULL,
+  `nomor` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `metode_pembayaran`
+--
+
+INSERT INTO `metode_pembayaran` (`id_metode`, `metode`, `nomor`) VALUES
+(1, 'Dana', '082244496190'),
+(2, 'OVO', '082244496190'),
+(3, 'Gopay', '082244496190'),
+(4, 'BRI', '002102991123328'),
+(5, 'BNI', '012175131123057'),
+(6, 'Mandiri', '651235131123485'),
+(7, 'BCA', '053215139123012'),
+(8, 'BTN', '948510375395682');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pesanan_customer`
+--
+
+CREATE TABLE `pesanan_customer` (
+  `id_pesanan_customer` int(11) NOT NULL,
+  `id_pesanan` int(11) NOT NULL,
+  `id_pembayaran` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `pesanan_customer`
+--
+
+INSERT INTO `pesanan_customer` (`id_pesanan_customer`, `id_pesanan`, `id_pembayaran`) VALUES
+(1, 1, 1),
+(2, 2, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `transaksi_pesanan`
+--
+
+CREATE TABLE `transaksi_pesanan` (
+  `id_transaksi` int(11) NOT NULL,
+  `id_pesanan` int(11) NOT NULL,
+  `id_pembayaran` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `verifikasi_transaksi`
+--
+
+CREATE TABLE `verifikasi_transaksi` (
+  `id_verifikasi` int(11) NOT NULL,
+  `id_pesanan_customer` int(11) NOT NULL,
+  `status_transaksi` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `verifikasi_transaksi`
+--
+
+INSERT INTO `verifikasi_transaksi` (`id_verifikasi`, `id_pesanan_customer`, `status_transaksi`) VALUES
+(1, 1, 'Berhasil'),
+(2, 2, 'Gagal');
+
+--
+-- Triggers `verifikasi_transaksi`
+--
+DELIMITER $$
+CREATE TRIGGER `triggerHapusTransaksi` AFTER INSERT ON `verifikasi_transaksi` FOR EACH ROW BEGIN
+    DELETE FROM transaksi_pesanan WHERE id_transaksi = 1;
+    END
+$$
+DELIMITER ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `akun_customer`
+--
+ALTER TABLE `akun_customer`
+  ADD PRIMARY KEY (`id_customer`);
+
+--
+-- Indexes for table `akun_pemilik`
+--
+ALTER TABLE `akun_pemilik`
+  ADD PRIMARY KEY (`id_pemilik`);
+
+--
+-- Indexes for table `data_pencatatan`
+--
+ALTER TABLE `data_pencatatan`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `data_produk`
+--
+ALTER TABLE `data_produk`
+  ADD PRIMARY KEY (`id_produk`);
+
+--
+-- Indexes for table `detail_pembayaran`
+--
+ALTER TABLE `detail_pembayaran`
+  ADD PRIMARY KEY (`id_pembayaran`),
+  ADD KEY `id_pesanan` (`id_pesanan`);
+
+--
+-- Indexes for table `detail_pesanan`
+--
+ALTER TABLE `detail_pesanan`
+  ADD PRIMARY KEY (`id_pesanan`),
+  ADD KEY `id_produk` (`id_produk`),
+  ADD KEY `id_metode` (`id_metode`);
+
+--
+-- Indexes for table `metode_pembayaran`
+--
+ALTER TABLE `metode_pembayaran`
+  ADD PRIMARY KEY (`id_metode`);
+
+--
+-- Indexes for table `pesanan_customer`
+--
+ALTER TABLE `pesanan_customer`
+  ADD PRIMARY KEY (`id_pesanan_customer`);
+
+--
+-- Indexes for table `transaksi_pesanan`
+--
+ALTER TABLE `transaksi_pesanan`
+  ADD PRIMARY KEY (`id_transaksi`),
+  ADD KEY `id_pesanan` (`id_pesanan`),
+  ADD KEY `id_pembayaran` (`id_pembayaran`);
+
+--
+-- Indexes for table `verifikasi_transaksi`
+--
+ALTER TABLE `verifikasi_transaksi`
+  ADD PRIMARY KEY (`id_verifikasi`),
+  ADD KEY `id_pesanan_customer` (`id_pesanan_customer`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `akun_customer`
+--
+ALTER TABLE `akun_customer`
+  MODIFY `id_customer` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `akun_pemilik`
+--
+ALTER TABLE `akun_pemilik`
+  MODIFY `id_pemilik` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `data_pencatatan`
+--
+ALTER TABLE `data_pencatatan`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `data_produk`
+--
+ALTER TABLE `data_produk`
+  MODIFY `id_produk` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+
+--
+-- AUTO_INCREMENT for table `detail_pembayaran`
+--
+ALTER TABLE `detail_pembayaran`
+  MODIFY `id_pembayaran` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `detail_pesanan`
+--
+ALTER TABLE `detail_pesanan`
+  MODIFY `id_pesanan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `metode_pembayaran`
+--
+ALTER TABLE `metode_pembayaran`
+  MODIFY `id_metode` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `pesanan_customer`
+--
+ALTER TABLE `pesanan_customer`
+  MODIFY `id_pesanan_customer` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `transaksi_pesanan`
+--
+ALTER TABLE `transaksi_pesanan`
+  MODIFY `id_transaksi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `verifikasi_transaksi`
+--
+ALTER TABLE `verifikasi_transaksi`
+  MODIFY `id_verifikasi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `detail_pembayaran`
+--
+ALTER TABLE `detail_pembayaran`
+  ADD CONSTRAINT `detail_pembayaran_ibfk_1` FOREIGN KEY (`id_pesanan`) REFERENCES `detail_pesanan` (`id_pesanan`);
+
+--
+-- Constraints for table `detail_pesanan`
+--
+ALTER TABLE `detail_pesanan`
+  ADD CONSTRAINT `detail_pesanan_ibfk_1` FOREIGN KEY (`id_produk`) REFERENCES `data_produk` (`id_produk`),
+  ADD CONSTRAINT `detail_pesanan_ibfk_2` FOREIGN KEY (`id_metode`) REFERENCES `metode_pembayaran` (`id_metode`);
+
+--
+-- Constraints for table `transaksi_pesanan`
+--
+ALTER TABLE `transaksi_pesanan`
+  ADD CONSTRAINT `transaksi_pesanan_ibfk_1` FOREIGN KEY (`id_pesanan`) REFERENCES `detail_pesanan` (`id_pesanan`),
+  ADD CONSTRAINT `transaksi_pesanan_ibfk_2` FOREIGN KEY (`id_pembayaran`) REFERENCES `detail_pembayaran` (`id_pembayaran`);
+
+--
+-- Constraints for table `verifikasi_transaksi`
+--
+ALTER TABLE `verifikasi_transaksi`
+  ADD CONSTRAINT `verifikasi_transaksi_ibfk_1` FOREIGN KEY (`id_pesanan_customer`) REFERENCES `pesanan_customer` (`id_pesanan_customer`);
+COMMIT;
